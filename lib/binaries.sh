@@ -62,8 +62,32 @@ install_npm() {
 }
 
 install_aws() {
-  curl "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o "awscli-bundle.zip"
-  unzip awscli-bundle.zip
-  ./awscli-bundle/install -b ~/bin/aws
-  export PATH=~/bin:$PATH
+  local dir="$1"
+  local etag=""
+
+  if [ -e "$dir/.etag" ]; then
+    etag=`cat $dir/.etag`
+  fi
+  
+  echo Checking/downloading AWS CLI...
+  rm -rf /tmp/awscli-bundle*
+  curl -s -H "If-None-Match: $etag" "https://s3.amazonaws.com/aws-cli/awscli-bundle.zip" -o /tmp/awscli-bundle.zip -D /tmp/awscli-bundle-headers
+  
+  if [ -s /tmp/awscli-bundle.zip ]; then  
+    etag=$(cat /tmp/awscli-bundle-headers | grep "ETag:" | cut -d'"' -f 2)
+    mkdir -p $dir
+    rm -rf $dir/*
+    echo $etag > $dir/.etag  
+    echo Installing new AWS CLI...
+    unzip /tmp/awscli-bundle.zip -d /tmp
+    /tmp/awscli-bundle/install -i $dir
+    $dir/bin/aws --version
+  else
+    if [ -x "$dir/bin/aws" ]; then
+      echo Current AWS CLI already found \(ETag $etag\)
+    else
+      echo ERROR: AWS CLI not installed!
+      exit 1
+    fi
+  fi
 }

@@ -20,8 +20,10 @@ ENV_DIR=${3:-}
 BP_DIR=$(cd $(dirname ${0:-}); cd ..; pwd)
 
 mkdir -p "$BUILD_DIR/.heroku/node/"
+mkdir -p "$BUILD_DIR/.futurice/aws/"
 cd $BUILD_DIR
 export PATH="$BUILD_DIR/.heroku/node/bin":$PATH
+export PATH="$BUILD_DIR/.futurice/aws/bin":$PATH
 
 LOG_FILE='/tmp/node-build-log.txt'
 echo "" > "$LOG_FILE"
@@ -91,7 +93,7 @@ install_bins() {
     install_nodejs "$node_engine" "$BUILD_DIR/.heroku/node"
     install_npm "$npm_engine" "$BUILD_DIR/.heroku/node"
   fi
-  install_aws
+  install_aws "$BUILD_DIR/.futurice/aws"
   warn_old_npm
 }
 
