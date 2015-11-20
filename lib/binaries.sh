@@ -77,7 +77,6 @@ install_aws() {
     etag=$(cat /tmp/awscli-bundle-headers | grep "ETag:" | cut -d'"' -f 2)
     rm -rf $dir/aws
     mkdir -p $dir/aws
-    rm ~/.local/lib/aws
     echo Installing new AWS CLI...
     unzip /tmp/awscli-bundle.zip -d /tmp
     /tmp/awscli-bundle/install
